@@ -3,6 +3,7 @@
 
 #define MAX_PRODUTOS 100
 #define ARQUIVO_DADOS "estoque.dat"
+#define ARQUIVO_RELATORIO "relatorio_estoque.txt"
 
 typedef struct {
     int codigo;
@@ -22,5 +23,10 @@ void limparBuffer();
 void menuPrincipal();
 void cadastrarProduto();
 void listarProdutos();
+void registrarEntrada();
+void registrarSaida();
+void buscarProduto();
+void gerarRelatorio();
+void buscarPorNome();
 
 #endif

@@ -1,0 +1,7 @@
+=== RELATORIO DE ESTOQUE ===
+
+Cod    Nome                 Descricao                      Qtd        Preco Uni  Total       
+1234   parafuso             m5                             30         2.00       60.00       
+105    anilha               recartilhada                   7          200.00     1400.00     
+
+VALOR TOTAL DO ESTOQUE: 1460.00

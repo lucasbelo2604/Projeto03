@@ -91,12 +91,151 @@ void listarProdutos() {
     }
 }
 
+void buscarProduto() {
+    int codigo;
+    printf("\n=== BUSCAR PRODUTO ===\n");
+    printf("Digite o codigo: ");
+    scanf("%d", &codigo);
+    limparBuffer();
+    
+    for (int i = 0; i < totalProdutos; i++) {
+        if (estoque[i].codigo == codigo) {
+            printf("\nProduto encontrado:\n");
+            printf("Codigo: %d\n", estoque[i].codigo);
+            printf("Nome: %s\n", estoque[i].nome);
+            printf("Descricao: %s\n", estoque[i].descricao);
+            printf("Quantidade: %d\n", estoque[i].quantidade);
+            printf("Preco unitario: %.2f\n", estoque[i].preco_unitario);
+            return;
+        }
+    }
+    printf("Produto nao encontrado!\n");
+}
+
+void registrarEntrada() {
+    int codigo, quantidade;
+    printf("\n=== REGISTRAR ENTRADA DE PRODUTO ===\n");
+    printf("Codigo do produto: ");
+    scanf("%d", &codigo);
+    printf("Quantidade a adicionar: ");
+    scanf("%d", &quantidade);
+    limparBuffer();
+    
+    if (quantidade <= 0) {
+        printf("Quantidade invalida!\n");
+        return;
+    }
+    
+    for (int i = 0; i < totalProdutos; i++) {
+        if (estoque[i].codigo == codigo) {
+            estoque[i].quantidade += quantidade;
+            printf("Entrada registrada. Nova quantidade: %d\n", estoque[i].quantidade);
+            return;
+        }
+    }
+    
+    printf("Produto nao encontrado!\n");
+}
+
+void registrarSaida() {
+    int codigo, quantidade;
+    printf("\n=== REGISTRAR SAIDA DE PRODUTO ===\n");
+    printf("Codigo do produto: ");
+    scanf("%d", &codigo);
+    printf("Quantidade a remover: ");
+    scanf("%d", &quantidade);
+    limparBuffer();
+    
+    if (quantidade <= 0) {
+        printf("Quantidade invalida!\n");
+        return;
+    }
+    
+    for (int i = 0; i < totalProdutos; i++) {
+        if (estoque[i].codigo == codigo) {
+            if (estoque[i].quantidade < quantidade) {
+                printf("Erro: Quantidade em estoque insuficiente!\n");
+                return;
+            }
+            
+            estoque[i].quantidade -= quantidade;
+            printf("Saida registrada. Nova quantidade: %d\n", estoque[i].quantidade);
+            return;
+        }
+    }
+    
+    printf("Produto nao encontrado!\n");
+}
+
+void buscarPorNome() {
+    char termo[50];
+    printf("\n=== BUSCAR POR NOME ===\n");
+    printf("Digite o nome (ou parte dele): ");
+    fgets(termo, 50, stdin);
+    termo[strcspn(termo, "\n")] = '\0';
+    
+    printf("\nResultados da busca por '%s':\n", termo);
+    int encontrados = 0;
+    
+    for (int i = 0; i < totalProdutos; i++) {
+        if (strstr(estoque[i].nome, termo) != NULL) {
+            printf("%d - %s (Qtd: %d, Preco: %.2f)\n", 
+                   estoque[i].codigo, 
+                   estoque[i].nome, 
+                   estoque[i].quantidade, 
+                   estoque[i].preco_unitario);
+            encontrados++;
+        }
+    }
+    
+    if (encontrados == 0) {
+        printf("Nenhum produto encontrado.\n");
+    }
+}
+
+void gerarRelatorio() {
+    FILE *relatorio = fopen(ARQUIVO_RELATORIO, "w");
+    if (relatorio == NULL) {
+        printf("Erro ao criar arquivo de relatorio!\n");
+        return;
+    }
+    
+    fprintf(relatorio, "=== RELATORIO DE ESTOQUE ===\n\n");
+    fprintf(relatorio, "%-6s %-20s %-30s %-10s %-10s %-12s\n", 
+            "Cod", "Nome", "Descricao", "Qtd", "Preco Uni", "Total");
+    
+    float valorTotalEstoque = 0;
+    
+    for (int i = 0; i < totalProdutos; i++) {
+        float valorTotal = estoque[i].quantidade * estoque[i].preco_unitario;
+        valorTotalEstoque += valorTotal;
+        
+        fprintf(relatorio, "%-6d %-20s %-30s %-10d %-10.2f %-12.2f\n", 
+                estoque[i].codigo, 
+                estoque[i].nome, 
+                estoque[i].descricao, 
+                estoque[i].quantidade, 
+                estoque[i].preco_unitario,
+                valorTotal);
+    }
+    
+    fprintf(relatorio, "\nVALOR TOTAL DO ESTOQUE: %.2f\n", valorTotalEstoque);
+    fclose(relatorio);
+    
+    printf("Relatorio gerado com sucesso no arquivo '%s'.\n", ARQUIVO_RELATORIO);
+}
+
 void menuPrincipal() {
     int opcao;
     do {
-        printf("\n=== SISTEMA DE CONTROLE DE ESTOQUE (ETAPA 1) ===\n");
+        printf("\n=== SISTEMA DE CONTROLE DE ESTOQUE ===\n");
         printf("1. Cadastrar novo produto\n");
         printf("2. Listar todos os produtos\n");
+        printf("3. Buscar produto por codigo\n");
+        printf("4. Buscar produto por nome\n");
+        printf("5. Registrar entrada de produtos\n");
+        printf("6. Registrar saida de produtos\n");
+        printf("7. Gerar relatorio de estoque\n");
         printf("0. Sair\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
@@ -105,6 +244,11 @@ void menuPrincipal() {
         switch(opcao) {
             case 1: cadastrarProduto(); break;
             case 2: listarProdutos(); break;
+            case 3: buscarProduto(); break;
+            case 4: buscarPorNome(); break;
+            case 5: registrarEntrada(); break;
+            case 6: registrarSaida(); break;
+            case 7: gerarRelatorio(); break;
             case 0: 
                 salvarEstoque();
                 printf("Saindo do sistema...\n");
